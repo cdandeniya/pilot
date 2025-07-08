@@ -24,12 +24,11 @@
       "supportsTablet": true,
       "infoPlist": {
         "NSLocationWhenInUseUsageDescription": "MapAI needs location access to provide navigation and safety features.",
-        "NSMicrophoneUsageDescription": "MapAI needs microphone access for voice commands and wake word detection.",
-        "ITSAppUsesNonExemptEncryption": false
-      },
-      "bundleIdentifier": "com.cdandeniya.mapai"
+        "NSMicrophoneUsageDescription": "MapAI needs microphone access for voice commands and wake word detection."
+      }
     },
     "android": {
+      "package": "com.cdandeniya.mapai",
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"
