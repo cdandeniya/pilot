@@ -9,7 +9,7 @@ allprojects {
             }
             credentials {
                 username = "mapbox"
-                password = "pk.eyJ1IjoiY2RhbmRlbml5YSIsImEiOiJjbWN0dm8zbHowYTgzMmxvcjE1YjdxbjRjIn0.wmjMmFGxoC7kvperubJHBw"
+                password = project.findProperty('MAPBOX_DOWNLOADS_TOKEN') ?: System.getenv('MAPBOX_DOWNLOADS_TOKEN') ?: "pk.eyJ1IjoiY2RhbmRlbml5YSIsImEiOiJjbWN0dm8zbHowYTgzMmxvcjE1YjdxbjRjIn0.wmjMmFGxoC7kvperubJHBw"
             }
         }
         maven { url 'https://jitpack.io' }
