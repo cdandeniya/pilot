@@ -1,14 +1,51 @@
 {
   "expo": {
-    "extra": {
-      "eas": {
-        "projectId": "06169e9d-def2-43fe-b610-b91f1de352dc"
-      }
+    "name": "MapAI",
+    "slug": "mapai",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "light",
+    "newArchEnabled": true,
+    "plugins": [
+      [
+        "expo-location",
+        {
+          "locationAlwaysAndWhenInUsePermission": "Allow MapAI to use your location for navigation and safety features."
+        }
+      ]
+    ],
+    "splash": {
+      "image": "./assets/splash-icon.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#ffffff"
     },
     "ios": {
-      "bundleIdentifier": "com.cdandeniya.pilot",
+      "supportsTablet": true,
       "infoPlist": {
-        "ITSAppUsesNonExemptEncryption": false
+        "NSLocationWhenInUseUsageDescription": "MapAI needs location access to provide navigation and safety features.",
+        "NSMicrophoneUsageDescription": "MapAI needs microphone access for voice commands and wake word detection."
+      }
+    },
+    "android": {
+      "package": "com.cdandeniya.mapai",
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/adaptive-icon.png",
+        "backgroundColor": "#ffffff"
+      },
+      "edgeToEdgeEnabled": true,
+      "permissions": [
+        "android.permission.ACCESS_FINE_LOCATION",
+        "android.permission.ACCESS_COARSE_LOCATION",
+        "android.permission.RECORD_AUDIO"
+      ]
+    },
+    "web": {
+      "favicon": "./assets/favicon.png"
+    },
+    "extra": {
+      "eas": {
+        "projectId": "5d76b99e-bb3f-4556-ae29-b22bb9cd3bb4"
       }
     }
   }
