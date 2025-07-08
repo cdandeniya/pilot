@@ -1,0 +1,39 @@
+pluginManagement {
+    repositories {
+        mavenCentral()
+        google()
+        maven {
+            url 'https://api.mapbox.com/downloads/v2/releases/maven'
+            authentication {
+                basic(BasicAuthentication)
+            }
+            credentials {
+                username = "mapbox"
+                password = project.findProperty('MAPBOX_DOWNLOADS_TOKEN') ?: System.getenv('MAPBOX_DOWNLOADS_TOKEN') ?: "sk.eyJ1IjoiY2RhbmRlbml5YSIsImEiOiJjbWN0eDFrZngwMGVwMmtvcnNsZnNtODVmIn0.bBwgpkuANVy28BFkgSj_NA"
+            }
+        }
+        maven { url 'https://jitpack.io' }
+    }
+}
+
+dependencyResolutionManagement {
+    repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
+    repositories {
+        mavenCentral()
+        google()
+        maven {
+            url 'https://api.mapbox.com/downloads/v2/releases/maven'
+            authentication {
+                basic(BasicAuthentication)
+            }
+            credentials {
+                username = "mapbox"
+                password = project.findProperty('MAPBOX_DOWNLOADS_TOKEN') ?: System.getenv('MAPBOX_DOWNLOADS_TOKEN') ?: "sk.eyJ1IjoiY2RhbmRlbml5YSIsImEiOiJjbWN0eDFrZngwMGVwMmtvcnNsZnNtODVmIn0.bBwgpkuANVy28BFkgSj_NA"
+            }
+        }
+        maven { url 'https://jitpack.io' }
+    }
+}
+
+rootProject.name = 'android'
+include ':app' 
