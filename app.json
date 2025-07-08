@@ -1,0 +1,15 @@
+{
+  "expo": {
+    "extra": {
+      "eas": {
+        "projectId": "06169e9d-def2-43fe-b610-b91f1de352dc"
+      }
+    },
+    "ios": {
+      "bundleIdentifier": "com.cdandeniya.pilot",
+      "infoPlist": {
+        "ITSAppUsesNonExemptEncryption": false
+      }
+    }
+  }
+}
