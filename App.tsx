@@ -1,12 +1,16 @@
 import React, { useState } from 'react';
 import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, View, Text, Alert } from 'react-native';
+import { StyleSheet, View, Text, Alert, Platform } from 'react-native';
 import Mapbox from '@rnmapbox/maps';
 import MapScreen from './src/components/MapScreen';
 import WakeWordDetector from './src/components/WakeWordDetector';
 import SafetyGuard from './src/components/SafetyGuard';
 import { useVoiceHook } from './src/hooks/useVoiceHook';
-import 'mapbox-gl/dist/mapbox-gl.css';
+
+// Conditionally import mapbox-gl CSS for web only
+if (Platform.OS === 'web') {
+  require('mapbox-gl/dist/mapbox-gl.css');
+}
 
 // Initialize Mapbox with your token
 Mapbox.setAccessToken(process.env.EXPO_PUBLIC_MAPBOX_TOKEN || '');
