@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import Voice from '@react-native-community/voice';
 
@@ -13,77 +13,158 @@ const WakeWordDetector: React.FC<WakeWordDetectorProps> = ({
 }) => {
   const [isHotMicActive, setIsHotMicActive] = useState(false);
   const [lastTranscription, setLastTranscription] = useState('');
+  const [error, setError] = useState<string | null>(null);
+  const recognitionActive = useRef(false);
+  const cleanupTimeout = useRef<NodeJS.Timeout | null>(null);
 
-  useEffect(() => {
-    // Set up voice event listeners for wake word detection
-    Voice.onSpeechResults = (event) => {
-      if (event.value && event.value.length > 0) {
-        const text = event.value[0].toLowerCase();
-        setLastTranscription(text);
-        
-        // Simple keyword matching for "hey map ai" or "hey mapai"
-        if (text.includes('hey map') || text.includes('hey mapai')) {
-          console.log('Wake word detected!');
-          onWakeWordDetected();
-        }
-      }
-    };
-
-    Voice.onSpeechError = (error) => {
-      console.error('Wake word detection error:', error);
-    };
-
-    return () => {
-      Voice.destroy().then(Voice.removeAllListeners);
-    };
-  }, [onWakeWordDetected]);
-
+  // Helper to safely start recognition
   const startHotMic = async () => {
+    if (recognitionActive.current) {
+      console.log('WakeWordDetector: Recognition already active, skipping start');
+      return;
+    }
+
     try {
-      setIsHotMicActive(true);
+      console.log('WakeWordDetector: Starting recognition...');
+      
+      // Always destroy first to ensure clean state
+      await Voice.destroy();
+      
+      // Small delay to ensure cleanup is complete
+      await new Promise(resolve => setTimeout(resolve, 100));
+      
+      recognitionActive.current = true;
       await Voice.start('en-US');
-    } catch (error) {
-      console.error('Error starting hot mic:', error);
+      setIsHotMicActive(true);
+      setError(null);
+      console.log('WakeWordDetector: Recognition started successfully');
+    } catch (err) {
+      console.error('WakeWordDetector: Failed to start recognition:', err);
+      recognitionActive.current = false;
       setIsHotMicActive(false);
+      setError(err instanceof Error ? err.message : 'Failed to start recognition');
     }
   };
 
+  // Helper to safely stop recognition
   const stopHotMic = async () => {
+    if (!recognitionActive.current) {
+      console.log('WakeWordDetector: Recognition not active, skipping stop');
+      return;
+    }
+
     try {
+      console.log('WakeWordDetector: Stopping recognition...');
       await Voice.stop();
+      await Voice.destroy();
+      recognitionActive.current = false;
       setIsHotMicActive(false);
-    } catch (error) {
-      console.error('Error stopping hot mic:', error);
+      console.log('WakeWordDetector: Recognition stopped successfully');
+    } catch (err) {
+      console.error('WakeWordDetector: Failed to stop recognition:', err);
+      // Force cleanup even if stop fails
+      recognitionActive.current = false;
       setIsHotMicActive(false);
     }
   };
 
-  // Start hot mic when component mounts
-  useEffect(() => {
-    startHotMic();
+  // Handle recognition results
+  const handleSpeechResults = (event: any) => {
+    console.log('WakeWordDetector: Speech results:', event);
+    const transcription = event.value?.[0] || '';
+    setLastTranscription(transcription);
     
+    // Check for wake word (customize this logic)
+    if (transcription.toLowerCase().includes('hey') || 
+        transcription.toLowerCase().includes('hello') ||
+        transcription.toLowerCase().includes('wake')) {
+      console.log('WakeWordDetector: Wake word detected!');
+      onWakeWordDetected();
+    }
+  };
+
+  // Handle recognition errors
+  const handleSpeechError = (event: any) => {
+    console.log('WakeWordDetector: Speech error:', event);
+    setError(event.error?.message || 'Speech recognition error');
+    
+    // Clean up and restart after a delay
+    if (recognitionActive.current) {
+      stopHotMic().then(() => {
+        // Restart after delay to avoid rapid restart loops
+        if (cleanupTimeout.current) {
+          clearTimeout(cleanupTimeout.current);
+        }
+        cleanupTimeout.current = setTimeout(() => {
+          if (isListening) {
+            startHotMic();
+          }
+        }, 2000);
+      });
+    }
+  };
+
+  // Handle recognition end
+  const handleSpeechEnd = () => {
+    console.log('WakeWordDetector: Speech recognition ended');
+    recognitionActive.current = false;
+    setIsHotMicActive(false);
+    
+    // Restart if we should still be listening
+    if (isListening) {
+      setTimeout(() => {
+        if (isListening && !recognitionActive.current) {
+          startHotMic();
+        }
+      }, 1000);
+    }
+  };
+
+  // Set up Voice event listeners
+  useEffect(() => {
+    console.log('WakeWordDetector: Setting up Voice event listeners');
+    
+    Voice.onSpeechStart = () => console.log('WakeWordDetector: Speech started');
+    Voice.onSpeechEnd = handleSpeechEnd;
+    Voice.onSpeechError = handleSpeechError;
+    Voice.onSpeechResults = handleSpeechResults;
+    Voice.onSpeechPartialResults = (event) => {
+      console.log('WakeWordDetector: Partial results:', event);
+    };
+
     return () => {
-      stopHotMic();
+      console.log('WakeWordDetector: Cleaning up Voice event listeners');
+      Voice.destroy();
+      if (cleanupTimeout.current) {
+        clearTimeout(cleanupTimeout.current);
+      }
     };
   }, []);
 
-  // Stop hot mic when actively listening
+  // Handle isListening prop changes
   useEffect(() => {
-    if (isListening) {
-      stopHotMic();
-    } else if (!isHotMicActive) {
+    console.log('WakeWordDetector: isListening changed to:', isListening);
+    
+    if (isListening && !recognitionActive.current) {
       startHotMic();
+    } else if (!isListening && recognitionActive.current) {
+      stopHotMic();
     }
-  }, [isListening, isHotMicActive]);
+  }, [isListening]);
 
   return (
     <View style={styles.container}>
-      <Text style={styles.statusText}>
-        {isHotMicActive ? 'Listening for "Hey MapAI"...' : 'Voice active'}
+      <Text style={styles.status}>
+        {isHotMicActive ? 'Listening...' : 'Not listening'}
       </Text>
       {lastTranscription && (
-        <Text style={styles.transcriptionText}>
-          Last heard: "{lastTranscription}"
+        <Text style={styles.transcription}>
+          Heard: "{lastTranscription}"
+        </Text>
+      )}
+      {error && (
+        <Text style={styles.error}>
+          Error: {error}
         </Text>
       )}
     </View>
@@ -93,24 +174,27 @@ const WakeWordDetector: React.FC<WakeWordDetectorProps> = ({
 const styles = StyleSheet.create({
   container: {
     position: 'absolute',
-    bottom: 20,
+    top: 50,
     left: 20,
     right: 20,
     backgroundColor: 'rgba(0, 0, 0, 0.7)',
     padding: 10,
     borderRadius: 8,
   },
-  statusText: {
+  status: {
     color: 'white',
-    textAlign: 'center',
     fontSize: 14,
+    fontWeight: 'bold',
   },
-  transcriptionText: {
+  transcription: {
     color: 'white',
-    textAlign: 'center',
     fontSize: 12,
     marginTop: 5,
-    fontStyle: 'italic',
+  },
+  error: {
+    color: 'red',
+    fontSize: 12,
+    marginTop: 5,
   },
 });
 

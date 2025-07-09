@@ -38,7 +38,7 @@ const MapScreen: React.FC<MapScreenProps> = ({ onLocationUpdate }) => {
 
   return (
     <View style={styles.container}>
-      <Mapbox.MapView style={styles.map}>
+      <Mapbox.MapView style={styles.map} styleURL="mapbox://styles/mapbox/streets-v11">
         <Mapbox.Camera
           zoomLevel={15}
           centerCoordinate={[userLocation.longitude, userLocation.latitude]}

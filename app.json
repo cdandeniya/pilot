@@ -6,7 +6,8 @@
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
-    "newArchEnabled": true,
+    "newArchEnabled": false,
+    "jsEngine": "jsc",
     "plugins": [
       [
         "expo-location",
@@ -24,7 +25,8 @@
       "supportsTablet": true,
       "infoPlist": {
         "NSLocationWhenInUseUsageDescription": "MapAI needs location access to provide navigation and safety features.",
-        "NSMicrophoneUsageDescription": "MapAI needs microphone access for voice commands and wake word detection."
+        "NSMicrophoneUsageDescription": "MapAI needs microphone access for voice commands and wake word detection.",
+        "NSSpeechRecognitionUsageDescription": "MapAI uses speech recognition to enable voice commands and wake word detection."
       },
       "bundleIdentifier": "com.cdandeniya.mapai"
     },
@@ -48,7 +50,7 @@
       "eas": {
         "projectId": "5d76b99e-bb3f-4556-ae29-b22bb9cd3bb4"
       },
-      "EXPO_PUBLIC_MAPBOX_TOKEN": "pk.eyJ1IjoiY2RhbmRlbml5YSIsImEiOiJjbWN0eDFrZngwMGVwMmtvcnNsZnNtODVmIn0.bBwgpkuANVy28BFkgSj_NA"
+      "EXPO_PUBLIC_MAPBOX_TOKEN": "pk.eyJ1IjoiY2RhbmRlbml5YSIsImEiOiJjbWN2YWNybWkwOHhpMnFwd2M4cTdndzAxIn0.W9zB0KgKRHRRJajLc6SPNQ"
     }
   }
 }

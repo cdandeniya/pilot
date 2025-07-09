@@ -58,6 +58,8 @@
     <string>MapAI needs location access to provide navigation and safety features.</string>
     <key>NSMicrophoneUsageDescription</key>
     <string>MapAI needs microphone access for voice commands and wake word detection.</string>
+    <key>NSSpeechRecognitionUsageDescription</key>
+    <string>MapAI uses speech recognition to enable voice commands and wake word detection.</string>
     <key>UILaunchStoryboardName</key>
     <string>SplashScreen</string>
     <key>UIRequiredDeviceCapabilities</key>
