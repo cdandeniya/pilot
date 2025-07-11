@@ -1,38 +1,45 @@
-import React, { useState, useCallback } from 'react';
-import { View, StyleSheet } from 'react-native';
-import Mapbox from '@rnmapbox/maps';
-import Constants from 'expo-constants';
-import MapScreen from './src/components/MapScreen';
-import SafetyGuard from './src/components/SafetyGuard';
-import WakeWordDetector from './src/components/WakeWordDetector';
-
-// Set Mapbox access token from Expo config
-Mapbox.setAccessToken(Constants.expoConfig?.extra?.EXPO_PUBLIC_MAPBOX_TOKEN || '');
+import React from 'react';
+import { View, Text, StyleSheet } from 'react-native';
+import { StatusBar } from 'expo-status-bar';
 
 export default function App() {
-  const [wakeWordDetected, setWakeWordDetected] = useState(false);
-  const [isListening, setIsListening] = useState(true);
-
-  const handleWakeWord = useCallback(() => {
-    setWakeWordDetected(true);
-    setIsListening(true);
-    // You can trigger additional logic here, e.g., open a voice command modal
-  }, []);
-
-  const handleSpeedWarning = useCallback((speed: number) => {
-    // You can show a modal or notification here
-    console.warn('Speed warning:', speed);
-  }, []);
-
   return (
     <View style={styles.container}>
-      <MapScreen />
-      <SafetyGuard onSpeedWarning={handleSpeedWarning} />
-      <WakeWordDetector onWakeWordDetected={handleWakeWord} isListening={isListening} />
+      <Text style={styles.title}>🚗 Cruise Navigation App</Text>
+      <Text style={styles.subtitle}>This is working! ✅</Text>
+      <Text style={styles.description}>
+        If you can see this, the app is loading our custom code correctly.
+      </Text>
+      <StatusBar style="auto" />
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1 },
-});
+  container: {
+    flex: 1,
+    backgroundColor: '#2563EB',
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: 20,
+  },
+  title: {
+    fontSize: 32,
+    fontWeight: 'bold',
+    color: 'white',
+    textAlign: 'center',
+    marginBottom: 20,
+  },
+  subtitle: {
+    fontSize: 24,
+    color: 'white',
+    textAlign: 'center',
+    marginBottom: 20,
+  },
+  description: {
+    fontSize: 16,
+    color: 'white',
+    textAlign: 'center',
+    lineHeight: 24,
+  },
+}); 

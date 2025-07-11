@@ -1,185 +1,253 @@
-# MapAI — Your Conversational Copilot
+# Cruise - iOS Navigation App
 
-MapAI is a voice-first routing companion that fuses turn-by-turn navigation with a GPT-powered conversational layer. This MVP demonstrates the core functionality of hands-free navigation with voice interaction.
+A professional voice-controlled navigation app for iOS, built with React Native and Expo. Cruise provides turn-by-turn navigation with AI-powered voice assistance, similar to Google Maps but with advanced conversational features.
 
-## 🚀 Features (MVP)
+## 🚀 Features
 
-- **Live Mapbox Integration**: Real-time map display with user location tracking
-- **Wake Word Detection**: "Hey MapAI" triggers voice recording
-- **Speech-to-Text**: OpenAI-powered transcription of voice commands
-- **Safety Guardrails**: Monitors speed and screen interactions for safety warnings
-- **Cross-Platform**: Works on both iOS and Android
+### Core Navigation
+- **Turn-by-turn navigation** with Google Maps integration
+- **Real-time location tracking** with GPS
+- **Voice-controlled navigation** using OpenAI GPT-4
+- **Professional UI** with Google Maps-style interface
+- **Route optimization** and traffic-aware routing
+
+### Voice Assistant
+- **Natural language processing** for navigation commands
+- **Voice-to-text** for hands-free operation
+- **Text-to-speech** for turn-by-turn instructions
+- **AI-powered responses** to navigation questions
+- **Context-aware** voice commands
+
+### Advanced Features
+- **Quick action buttons** for common destinations (food, gas, parking, medical)
+- **Nearby places search** with Google Places API
+- **Route details** with step-by-step instructions
+- **Voice command simulation** for demo purposes
+- **Professional animations** and smooth transitions
 
 ## 📱 Screenshots
 
-*Coming soon - screenshots will be added after first run*
+The app features a clean, professional interface with:
+- Full-screen Google Maps integration
+- Floating search bar with voice input
+- Quick action buttons for common destinations
+- Voice command button for hands-free operation
+- Turn-by-turn navigation with voice guidance
 
-## 🛠 Tech Stack
+## 🛠️ Tech Stack
 
-- **React Native + Expo**: Cross-platform development
-- **Mapbox**: Navigation and mapping SDK
-- **OpenAI**: Speech-to-text transcription
-- **Expo Location**: GPS and speed monitoring
-- **TypeScript**: Type-safe development
-- **Jest + React Native Testing Library**: Unit testing
+- **React Native** with Expo
+- **TypeScript** for type safety
+- **Google Maps API** for navigation and places
+- **OpenAI GPT-4** for voice processing
+- **React Navigation** for screen management
+- **React Native Paper** for UI components
+- **Expo Location** for GPS tracking
+- **Expo Speech** for text-to-speech
+- **Expo Linear Gradient** for visual effects
 
-## 🚀 Quick Start
+## 📋 Prerequisites
 
-### Prerequisites
-
-- Node.js (v18 or higher)
+- Node.js 18+ 
 - npm or yarn
+- Xcode 14+ (for iOS development)
+- iOS Simulator or physical iOS device
 - Expo CLI (`npm install -g @expo/cli`)
-- iOS Simulator (for iOS development)
-- Android Studio (for Android development)
 
-### Installation
+## 🚀 Installation
 
-1. **Clone and navigate to the project:**
+1. **Clone the repository**
    ```bash
-   cd mapai
+   git clone <repository-url>
+   cd cruise-ios
    ```
 
-2. **Install dependencies:**
+2. **Install dependencies**
    ```bash
    npm install
    ```
 
-3. **Set up environment variables:**
-   Create a `.env` file in the root directory:
-   ```bash
-   MAPBOX_TOKEN=your_mapbox_token_here
-   OPENAI_KEY=your_openai_key_here
-   ```
+3. **Configure API Keys**
+   
+   Update the API keys in the following files:
+   - `src/services/openai.ts` - OpenAI API key
+   - `src/services/navigation.ts` - Google Maps API key
+   - `app.json` - Google Maps API key for iOS
 
-   **Get your API keys:**
-   - [Mapbox Access Token](https://account.mapbox.com/access-tokens/)
-   - [OpenAI API Key](https://platform.openai.com/api-keys)
-
-4. **Start the development server:**
+4. **Start the development server**
    ```bash
    npm start
    ```
 
-5. **Run on your preferred platform:**
+5. **Run on iOS Simulator**
    ```bash
-   # iOS Simulator
    npm run ios
-   
-   # Android Emulator
-   npm run android
-   
-   # Web (for testing)
-   npm run web
    ```
 
-## 🎯 How to Use
+## 🎯 Usage
 
-1. **Launch the app** and grant location and microphone permissions
-2. **Say "Hey MapAI"** to activate voice recording
-3. **Speak your command** (e.g., "Find coffee near me")
-4. **View the transcription** on screen
-5. **Safety warnings** will appear if you touch the screen while driving
+### Voice Commands
 
-## 🏗 Project Structure
+The app supports natural language voice commands:
 
-```
-mapai/
-├── src/
-│   ├── components/
-│   │   ├── MapScreen.tsx      # Main map component
-│   │   ├── WakeWordDetector.tsx # Wake word detection
-│   │   └── SafetyGuard.tsx    # Speed monitoring
-│   └── hooks/
-│       └── useVoiceHook.ts    # Voice recording logic
-├── App.tsx                    # Main app component
-├── app.json                   # Expo configuration
-└── package.json               # Dependencies
-```
+- **"Navigate to Times Square"** - Start navigation to a destination
+- **"Find nearby gas stations"** - Search for nearby places
+- **"What's my ETA?"** - Get route information
+- **"Find the closest restaurant"** - Search for specific place types
+
+### Manual Navigation
+
+1. **Search for destination** using the search bar
+2. **Use quick action buttons** for common destinations
+3. **Tap "Start Navigation"** to begin turn-by-turn guidance
+4. **Use voice button** for hands-free operation
+
+### Navigation Screen
+
+- **Current step display** with voice guidance
+- **Step navigation** with previous/next buttons
+- **Route details** with full turn-by-turn list
+- **Voice commands** for route information
 
 ## 🔧 Configuration
 
-### Environment Variables
+### API Keys Setup
 
-The app uses the following environment variables:
+1. **OpenAI API Key**
+   - Get your API key from [OpenAI Platform](https://platform.openai.com/)
+   - Update `src/services/openai.ts`
 
-- `EXPO_PUBLIC_MAPBOX_TOKEN`: Your Mapbox access token
-- `EXPO_PUBLIC_OPENAI_KEY`: Your OpenAI API key
+2. **Google Maps API Key**
+   - Get your API key from [Google Cloud Console](https://console.cloud.google.com/)
+   - Enable Maps JavaScript API, Directions API, and Places API
+   - Update `src/services/navigation.ts` and `app.json`
 
-### Permissions
+### iOS Permissions
 
 The app requires the following permissions:
+- **Location Services** - For GPS navigation
+- **Microphone** - For voice commands
+- **Camera** - For potential AR features
 
-- **Location**: For GPS tracking and speed monitoring
-- **Microphone**: For voice commands and wake word detection
+## 🏗️ Project Structure
+
+```
+src/
+├── components/          # Reusable UI components
+├── screens/            # Main app screens
+│   ├── HomeScreen.tsx  # Main map interface
+│   └── NavigationScreen.tsx # Turn-by-turn navigation
+├── services/           # API and business logic
+│   ├── openai.ts      # OpenAI integration
+│   ├── navigation.ts  # Google Maps integration
+│   └── voice.ts       # Voice processing
+├── types/             # TypeScript type definitions
+└── theme/             # App theming and styling
+```
 
 ## 🧪 Testing
 
 Run the test suite:
-
 ```bash
 npm test
 ```
 
-## 🚧 Development Status
+## 📦 Building for Production
 
-### ✅ Completed (MVP)
-- [x] Project bootstrap with React Native + Expo
-- [x] Mapbox integration with live location tracking
-- [x] Wake word detection ("Hey MapAI")
-- [x] Voice recording and transcription
-- [x] Safety guardrails for speed monitoring
-- [x] Cross-platform compatibility
+### iOS App Store
 
-### 🔄 In Progress
-- [ ] Navigation routing
-- [ ] Fuel price API integration
-- [ ] GPT-powered Q&A responses
-- [ ] Enhanced wake word detection
+1. **Configure EAS Build**
+   ```bash
+   npx eas build:configure
+   ```
 
-### 📋 Planned (Post-MVP)
-- [ ] Turn-by-turn navigation
-- [ ] Real-time traffic updates
-- [ ] Music control integration
-- [ ] CarPlay/Android Auto support
-- [ ] Multi-language support
+2. **Build for iOS**
+   ```bash
+   npx eas build --platform ios
+   ```
+
+3. **Submit to App Store**
+   ```bash
+   npx eas submit --platform ios
+   ```
+
+### Development Build
+
+For testing on physical devices:
+```bash
+npx expo run:ios
+```
+
+## 🎨 Customization
+
+### Theme Colors
+
+Update `src/theme/index.ts` to customize:
+- Primary colors
+- Typography
+- Component styling
+
+### Voice Commands
+
+Modify `src/services/voice.ts` to add:
+- New command types
+- Custom voice responses
+- Additional AI features
+
+### UI Components
+
+Customize components in `src/components/` for:
+- Different map styles
+- Custom UI elements
+- Brand-specific styling
+
+## 🚨 Troubleshooting
+
+### Common Issues
+
+1. **Maps not loading**
+   - Check Google Maps API key configuration
+   - Verify API quotas and billing
+
+2. **Voice commands not working**
+   - Check OpenAI API key
+   - Verify microphone permissions
+
+3. **Location not updating**
+   - Check location permissions
+   - Verify GPS is enabled
+
+4. **Build errors**
+   - Clear Metro cache: `npx expo start --clear`
+   - Reset iOS Simulator
+   - Check Expo SDK version compatibility
+
+### Debug Mode
+
+Enable debug logging:
+```bash
+npx expo start --dev-client
+```
+
+## 📄 License
+
+This project is licensed under the MIT License.
 
 ## 🤝 Contributing
 
 1. Fork the repository
-2. Create a feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit your changes (`git commit -m 'Add amazing feature'`)
-4. Push to the branch (`git push origin feature/amazing-feature`)
-5. Open a Pull Request
-
-## 📄 License
-
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
-## 🆘 Troubleshooting
-
-### Common Issues
-
-**Mapbox not loading:**
-- Ensure your `MAPBOX_TOKEN` is correctly set in `.env`
-- Check that the token has the necessary permissions
-
-**Voice recording not working:**
-- Verify microphone permissions are granted
-- Check that `OPENAI_KEY` is set correctly
-
-**Location not updating:**
-- Ensure location permissions are granted
-- Check device GPS settings
-
-**Build errors:**
-- Clear cache: `npx expo start --clear`
-- Reinstall dependencies: `rm -rf node_modules && npm install`
+2. Create a feature branch
+3. Make your changes
+4. Add tests if applicable
+5. Submit a pull request
 
 ## 📞 Support
 
-For support, email support@mapai.com or create an issue in this repository.
+For support and questions:
+- Check the troubleshooting section
+- Review Expo documentation
+- Open an issue on GitHub
 
 ---
 
-**MapAI** - Your conversational copilot for safer, smarter driving. 🚗💬 
+**Cruise** - Your AI-powered navigation companion for iOS.

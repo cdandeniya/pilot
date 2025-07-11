@@ -1,56 +1,76 @@
 {
   "expo": {
-    "name": "MapAI",
-    "slug": "mapai",
+    "name": "Cruise",
+    "slug": "cruise-navigation",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
-    "newArchEnabled": false,
-    "jsEngine": "jsc",
-    "plugins": [
-      [
-        "expo-location",
-        {
-          "locationAlwaysAndWhenInUsePermission": "Allow MapAI to use your location for navigation and safety features."
-        }
-      ]
-    ],
+    "entryPoint": "./App.tsx",
     "splash": {
-      "image": "./assets/splash-icon.png",
+      "image": "./assets/splash.png",
       "resizeMode": "contain",
-      "backgroundColor": "#ffffff"
+      "backgroundColor": "#2563EB"
     },
+    "assetBundlePatterns": [
+      "**/*"
+    ],
     "ios": {
       "supportsTablet": true,
+      "bundleIdentifier": "com.cruise.navigation",
       "infoPlist": {
-        "NSLocationWhenInUseUsageDescription": "MapAI needs location access to provide navigation and safety features.",
-        "NSMicrophoneUsageDescription": "MapAI needs microphone access for voice commands and wake word detection.",
-        "NSSpeechRecognitionUsageDescription": "MapAI uses speech recognition to enable voice commands and wake word detection."
+        "NSLocationWhenInUseUsageDescription": "Cruise needs location access to provide turn-by-turn navigation and find nearby places.",
+        "NSLocationAlwaysAndWhenInUseUsageDescription": "Cruise needs location access to provide turn-by-turn navigation and find nearby places.",
+        "NSMicrophoneUsageDescription": "Cruise uses your microphone to understand voice commands for hands-free navigation.",
+        "NSCameraUsageDescription": "Cruise may use your camera for augmented reality navigation features.",
+        "UIBackgroundModes": [
+          "location",
+          "audio"
+        ]
       },
-      "bundleIdentifier": "com.cdandeniya.mapai"
+      "config": {
+        "googleMapsApiKey": "AIzaSyC_7hSdv0LHeOEnldEbM5JFIRKpxL_LZMo"
+      }
     },
     "android": {
-      "package": "com.cdandeniya.mapai",
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
-        "backgroundColor": "#ffffff"
+        "backgroundColor": "#2563EB"
       },
-      "edgeToEdgeEnabled": true,
+      "package": "com.cruise.navigation",
       "permissions": [
-        "android.permission.ACCESS_FINE_LOCATION",
-        "android.permission.ACCESS_COARSE_LOCATION",
-        "android.permission.RECORD_AUDIO"
-      ]
+        "ACCESS_FINE_LOCATION",
+        "ACCESS_COARSE_LOCATION",
+        "RECORD_AUDIO",
+        "CAMERA"
+      ],
+      "config": {
+        "googleMaps": {
+          "apiKey": "AIzaSyC_7hSdv0LHeOEnldEbM5JFIRKpxL_LZMo"
+        }
+      }
     },
     "web": {
       "favicon": "./assets/favicon.png"
     },
+    "plugins": [
+      [
+        "expo-location",
+        {
+          "locationAlwaysAndWhenInUsePermission": "Allow Cruise to use your location for navigation."
+        }
+      ],
+      [
+        "expo-av",
+        {
+          "microphonePermission": "Allow Cruise to access your microphone for voice commands."
+        }
+      ]
+    ],
     "extra": {
       "eas": {
-        "projectId": "5d76b99e-bb3f-4556-ae29-b22bb9cd3bb4"
-      },
-      "EXPO_PUBLIC_MAPBOX_TOKEN": "pk.eyJ1IjoiY2RhbmRlbml5YSIsImEiOiJjbWN2YWNybWkwOHhpMnFwd2M4cTdndzAxIn0.W9zB0KgKRHRRJajLc6SPNQ"
+        "projectId": "your-project-id"
+      }
     }
   }
-}
+} 

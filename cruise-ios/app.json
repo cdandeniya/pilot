@@ -1,0 +1,56 @@
+{
+  "expo": {
+    "name": "cruise-ios",
+    "slug": "cruise-ios",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "light",
+    "newArchEnabled": true,
+    "jsEngine": "jsc",
+    "splash": {
+      "image": "./assets/splash-icon.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#ffffff"
+    },
+    "plugins": [
+      [
+        "expo-location",
+        {
+          "locationAlwaysAndWhenInUsePermission": "Allow $(PRODUCT_NAME) to use your location."
+        }
+      ]
+    ],
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.cdandeniya.cruise-ios",
+      "config": {
+        "googleMapsApiKey": "AIzaSyC_7hSdv0LHeOEnldEbM5JFIRKpxL_LZMo"
+      },
+      "infoPlist": {
+        "NSLocationWhenInUseUsageDescription": "This app uses location to show your position on the map.",
+        "NSLocationAlwaysAndWhenInUseUsageDescription": "This app uses location to show your position on the map."
+      }
+    },
+    "android": {
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/adaptive-icon.png",
+        "backgroundColor": "#ffffff"
+      },
+      "edgeToEdgeEnabled": true,
+      "package": "com.cdandeniya.cruiseios",
+      "config": {
+        "googleMaps": {
+          "apiKey": "AIzaSyC_7hSdv0LHeOEnldEbM5JFIRKpxL_LZMo"
+        }
+      },
+      "permissions": [
+        "ACCESS_COARSE_LOCATION",
+        "ACCESS_FINE_LOCATION"
+      ]
+    },
+    "web": {
+      "favicon": "./assets/favicon.png"
+    }
+  }
+}
