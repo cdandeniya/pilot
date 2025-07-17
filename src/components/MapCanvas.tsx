@@ -43,10 +43,16 @@ export const MapCanvas = forwardRef<HTMLDivElement, MapCanvasProps>(
           mapRef.current = await initializeMap(mapElement, center)
           setIsMapLoaded(true)
 
-          // Initialize directions renderer
+          // Initialize directions renderer with enhanced styling
           directionsRendererRef.current = new google.maps.DirectionsRenderer({
             map: mapRef.current,
             suppressMarkers: true, // We'll add our own markers
+            polylineOptions: {
+              strokeColor: '#2563EB',
+              strokeWeight: 6,
+              strokeOpacity: 0.8,
+            },
+            preserveViewport: false,
           })
 
           // Watch for location updates
@@ -87,23 +93,29 @@ export const MapCanvas = forwardRef<HTMLDivElement, MapCanvasProps>(
         currentLocationMarkerRef.current.setMap(null)
       }
 
-      // Create new marker
+      // Create new marker with enhanced styling for navigation
       currentLocationMarkerRef.current = new google.maps.Marker({
         position: location,
         map: mapRef.current,
         title: 'Your Location',
         icon: {
           path: google.maps.SymbolPath.CIRCLE,
-          scale: 8,
+          scale: 10,
           fillColor: '#2563EB',
           fillOpacity: 1,
           strokeColor: '#FFFFFF',
-          strokeWeight: 2,
+          strokeWeight: 3,
         },
+        zIndex: 1000, // Ensure it's always on top
       })
 
-      // Center map on current location if no route is active
-      if (!routeData) {
+      // Add a pulsing effect for better visibility
+      if (routeData) {
+        // When navigating, keep the marker centered and add pulsing
+        mapRef.current.setCenter(location)
+        mapRef.current.setZoom(18) // Closer zoom for navigation
+      } else {
+        // When not navigating, just center on location
         mapRef.current.setCenter(location)
       }
     }

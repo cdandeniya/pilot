@@ -81,7 +81,7 @@ export const geocodeAddress = async (address: string): Promise<google.maps.LatLn
   })
 }
 
-// Directions service
+// Directions service - Car routes only
 export const getDirections = async (
   origin: google.maps.LatLngLiteral,
   destination: google.maps.LatLngLiteral,
@@ -99,6 +99,11 @@ export const getDirections = async (
         waypoints: waypoints.length > 0 ? waypoints.map(wp => ({ location: wp })) : undefined,
         optimizeWaypoints: true,
         travelMode: google.maps.TravelMode.DRIVING,
+        drivingOptions: {
+          departureTime: new Date(),
+          trafficModel: google.maps.TrafficModel.BEST_GUESS,
+        },
+        unitSystem: google.maps.UnitSystem.METRIC,
       },
       (result, status) => {
         if (status === 'OK' && result) {

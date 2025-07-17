@@ -21,6 +21,10 @@
         }
       ]
     ],
+    "extra": {
+      "googleMapsApiKey": "AIzaSyC_7hSdv0LHeOEnldEbM5JFIRKpxL_LZMo"
+      
+    },
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.cdandeniya.cruise-ios",

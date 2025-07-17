@@ -2,9 +2,7 @@
 
 import { useEffect, useState, useRef } from 'react'
 import dynamic from 'next/dynamic'
-import { MapCanvas } from '@/components/MapCanvas'
-import { VoiceButton } from '@/components/VoiceButton'
-import { VoiceIndicator } from '@/components/VoiceIndicator'
+import { TurnByTurnNavigation } from '@/components/TurnByTurnNavigation'
 import { PitStopCard } from '@/components/PitStopCard'
 import { Toast } from '@/components/Toast'
 import { VoiceController, VoiceState } from '@/lib/speech'
@@ -302,90 +300,15 @@ export default function NavigationPage() {
   }
 
   return (
-    <div className="h-screen flex flex-col">
-      {/* Header */}
-      <header className="bg-white shadow-soft px-4 py-3 flex items-center justify-between">
-        <div className="flex items-center space-x-3">
-          <div className="w-8 h-8 bg-primary-500 rounded-lg flex items-center justify-center">
-            <span className="text-white font-bold">C</span>
-          </div>
-          <h1 className="text-lg font-semibold text-gray-900">Cruise</h1>
-        </div>
-        
-        <VoiceIndicator state={voiceState} />
-      </header>
-
-      {/* Main Content */}
-      <div className="flex-1 relative">
-        {/* Map */}
-        <MapCanvas
-          ref={mapRef}
-          currentLocation={currentLocation}
-          routeData={routeData}
-          onLocationUpdate={setCurrentLocation}
-        />
-
-        {/* Voice Button */}
-        <div className="absolute bottom-6 right-6">
-          <VoiceButton
-            state={voiceState}
-            isLoading={isLoading}
-            onStart={startVoiceInteraction}
-            onStop={stopVoiceInteraction}
-          />
-        </div>
-
-        {/* Pit Stops */}
-        {pitStops.length > 0 && (
-          <div className="absolute top-4 left-4 right-4 max-h-64 overflow-y-auto">
-            <div className="space-y-2">
-              {pitStops.map((pitStop) => (
-                <PitStopCard
-                  key={pitStop.id}
-                  pitStop={pitStop}
-                  onSelect={() => {
-                    // Handle pit stop selection
-                    showToast(`Selected ${pitStop.name}`, 'success')
-                    setPitStops([])
-                  }}
-                />
-              ))}
-            </div>
-          </div>
-        )}
-
-        {/* Route Info */}
-        {routeData && (
-          <div className="absolute top-4 left-4 right-4">
-            <div className="card p-4">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm text-gray-600">Route</p>
-                  <p className="font-medium">{routeData.distance} • {routeData.duration}</p>
-                </div>
-                <button
-                  onClick={() => setRouteData(null)}
-                  className="text-gray-400 hover:text-gray-600"
-                >
-                  ×
-                </button>
-              </div>
-            </div>
-          </div>
-        )}
-      </div>
-
-      {/* Toast Messages */}
-      <div className="absolute top-20 left-4 right-4 z-50">
-        {toasts.map((toast) => (
-          <Toast
-            key={toast.id}
-            type={toast.type}
-            message={toast.message}
-            onClose={() => setToasts(prev => prev.filter(t => t.id !== toast.id))}
-          />
-        ))}
-      </div>
-    </div>
+    <TurnByTurnNavigation
+      currentLocation={currentLocation}
+      routeData={routeData}
+      onLocationUpdate={setCurrentLocation}
+      onVoiceCommand={handleVoiceCommand}
+      voiceState={voiceState}
+      isLoading={isLoading}
+      onStartVoice={startVoiceInteraction}
+      onStopVoice={stopVoiceInteraction}
+    />
   )
 } 

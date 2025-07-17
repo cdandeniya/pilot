@@ -1,43 +1,47 @@
 import React, { useState } from 'react';
-import { View, StyleSheet, Text, TouchableOpacity } from 'react-native';
-import { GooglePlacesAutocomplete } from 'react-native-google-places-autocomplete';
+import { View, StyleSheet, Text, TouchableOpacity, TextInput, FlatList } from 'react-native';
+import axios from 'axios';
 
 interface SearchBarProps {
   onLocationSelect: (data: any, details: any) => void;
   onVoiceSearch?: () => void;
+  onSearchResults?: (results: string) => void;
 }
 
-export default function SearchBar({ onLocationSelect, onVoiceSearch }: SearchBarProps) {
+interface SearchResult {
+  place_id: string;
+  name: string;
+  formatted_address: string;
+  geometry: {
+    location: {
+      lat: number;
+      lng: number;
+    };
+  };
+}
+
+export default function SearchBar({ onLocationSelect, onVoiceSearch, onSearchResults }: SearchBarProps) {
   const [isFocused, setIsFocused] = useState(false);
+  const [searchText, setSearchText] = useState('');
+  const [showResults, setShowResults] = useState(false);
+
+  const handleSearch = (text: string) => {
+    setSearchText(text);
+    onSearchResults?.(text);
+    setShowResults(text.length >= 3);
+  };
 
   return (
     <View style={styles.container}>
       <View style={[styles.searchContainer, isFocused && styles.searchContainerFocused]}>
-        <GooglePlacesAutocomplete
+        <TextInput
+          style={styles.textInput}
           placeholder="Search for a place..."
-          fetchDetails={true}
-          onPress={onLocationSelect}
-          onFail={(error) => console.error('GooglePlacesAutocomplete error:', error)}
-          onNotFound={() => console.log('No results found')}
-          query={{
-            key: 'AIzaSyC_7hSdv0LHeOEnldEbM5JFIRKpxL_LZMo',
-            language: 'en',
-            types: ['establishment', 'geocode'],
-          }}
-          styles={{
-            container: styles.autocompleteContainer,
-            textInput: styles.textInput,
-            listView: styles.listView,
-            row: styles.row,
-            description: styles.description,
-            separator: styles.separator,
-          }}
-          enablePoweredByContainer={false}
+          placeholderTextColor="#9CA3AF"
+          value={searchText}
+          onChangeText={handleSearch}
           onFocus={() => setIsFocused(true)}
           onBlur={() => setIsFocused(false)}
-          textInputProps={{
-            placeholderTextColor: '#9CA3AF',
-          }}
         />
         {onVoiceSearch && (
           <TouchableOpacity style={styles.voiceButton} onPress={onVoiceSearch}>
@@ -45,6 +49,7 @@ export default function SearchBar({ onLocationSelect, onVoiceSearch }: SearchBar
           </TouchableOpacity>
         )}
       </View>
+      {/* The dropdown will be managed by HomeScreen */}
     </View>
   );
 }
@@ -118,5 +123,35 @@ const styles = StyleSheet.create({
   },
   voiceButtonText: {
     fontSize: 20,
+  },
+  resultsContainer: {
+    backgroundColor: 'rgba(255, 255, 255, 0.98)',
+    borderRadius: 12,
+    marginTop: 4,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.1,
+    shadowRadius: 8,
+    elevation: 4,
+    maxHeight: 300,
+  },
+  resultsList: {
+    borderRadius: 12,
+  },
+  resultItem: {
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    borderBottomWidth: 1,
+    borderBottomColor: '#E5E7EB',
+  },
+  resultTitle: {
+    fontSize: 16,
+    fontWeight: '500',
+    color: '#1F2937',
+    marginBottom: 2,
+  },
+  resultAddress: {
+    fontSize: 14,
+    color: '#6B7280',
   },
 }); 
