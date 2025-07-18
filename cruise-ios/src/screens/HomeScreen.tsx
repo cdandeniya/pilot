@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { View, StyleSheet, TouchableOpacity, Text, Modal, Dimensions, ActivityIndicator } from 'react-native';
+import { View, StyleSheet, TouchableOpacity, Text, Modal, Dimensions, ActivityIndicator, Animated, FlatList } from 'react-native';
 import MapView, { PROVIDER_GOOGLE, Marker, Region } from 'react-native-maps';
 import { Ionicons, MaterialIcons } from '@expo/vector-icons';
 import SearchBar from '../components/SearchBar';
@@ -8,6 +8,11 @@ import type { StackNavigationProp } from '@react-navigation/stack';
 import * as Location from 'expo-location';
 import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+// 1. Add imports for new theme/colors and logo asset
+import { colors, glassmorphism } from '../theme';
+import { Svg, Defs, LinearGradient, RadialGradient, Stop, Ellipse, Path, Circle } from 'react-native-svg';
+// 1. Remove import of SvgUri (not used)
+// import SvgUri from 'react-native-svg-uri';
 
 const { width, height } = Dimensions.get('window');
 
@@ -43,10 +48,22 @@ interface SearchResult {
 // Define the navigation param list
 type RootStackParamList = {
   Home: undefined;
-  Navigation: { destination: { latitude: number; longitude: number; title: string } };
+  Navigation: { destination: { latitude: number; longitude: number; title: string }; origin?: { latitude: number; longitude: number } };
 };
 
+// Custom dark map style (Google Maps)
+const CRUISE_MAP_STYLE = [
+  { elementType: 'geometry', stylers: [{ color: '#181A20' }] },
+  { elementType: 'labels.text.fill', stylers: [{ color: '#A5A6B2' }] },
+  { elementType: 'labels.text.stroke', stylers: [{ color: '#181A20' }] },
+  { featureType: 'water', elementType: 'geometry', stylers: [{ color: '#23235B' }] },
+  { featureType: 'road', elementType: 'geometry', stylers: [{ color: '#3B3B98' }] },
+  { featureType: 'poi', elementType: 'geometry', stylers: [{ color: '#23235B' }] },
+  { featureType: 'transit', elementType: 'geometry', stylers: [{ color: '#23235B' }] },
+];
+
 export default function HomeScreen() {
+  // All useState, useRef, useEffect, Animated.Value hooks at the very top
   const [mapType, setMapType] = useState<typeof LAYERS[number]['mapType']>('standard');
   const [showLayerModal, setShowLayerModal] = useState(false);
   const [trafficEnabled, setTrafficEnabled] = useState(false);
@@ -62,37 +79,15 @@ export default function HomeScreen() {
   });
   const mapRef = useRef<MapView | null>(null);
   const navigation = useNavigation<StackNavigationProp<RootStackParamList>>();
-
-  // Add state for navigation destination
   const [navigationDestination, setNavigationDestination] = useState<POI | null>(null);
   const [initialRegion, setInitialRegion] = useState<Region | null>(null);
   const [locationLoading, setLocationLoading] = useState(true);
   const [searchResults, setSearchResults] = useState<SearchResult[]>([]);
-  // Add state for search bar text
   const [searchText, setSearchText] = useState('');
   const [showResults, setShowResults] = useState(false);
-
-  // Add state for favorites and recents
   const [favorites, setFavorites] = useState<POI[]>([]);
   const [recents, setRecents] = useState<POI[]>([]);
-
-  // Load favorites and recents from AsyncStorage on mount
-  useEffect(() => {
-    (async () => {
-      const favs = await AsyncStorage.getItem('favorites');
-      const recs = await AsyncStorage.getItem('recents');
-      if (favs) setFavorites(JSON.parse(favs));
-      if (recs) setRecents(JSON.parse(recs));
-    })();
-  }, []);
-
-  // Save favorites and recents to AsyncStorage when they change
-  useEffect(() => {
-    AsyncStorage.setItem('favorites', JSON.stringify(favorites));
-  }, [favorites]);
-  useEffect(() => {
-    AsyncStorage.setItem('recents', JSON.stringify(recents));
-  }, [recents]);
+  const buttonsAnim = useRef(new Animated.Value(0)).current;
 
   // Add to favorites
   const addToFavorites = (poi: POI) => {
@@ -108,6 +103,22 @@ export default function HomeScreen() {
   const addToRecents = (poi: POI) => {
     setRecents([poi, ...recents.filter(r => r.id !== poi.id)].slice(0, 10)); // keep max 10
   };
+
+  useEffect(() => {
+    (async () => {
+      const favs = await AsyncStorage.getItem('favorites');
+      const recs = await AsyncStorage.getItem('recents');
+      if (favs) setFavorites(JSON.parse(favs));
+      if (recs) setRecents(JSON.parse(recs));
+    })();
+  }, []);
+
+  useEffect(() => {
+    AsyncStorage.setItem('favorites', JSON.stringify(favorites));
+  }, [favorites]);
+  useEffect(() => {
+    AsyncStorage.setItem('recents', JSON.stringify(recents));
+  }, [recents]);
 
   useEffect(() => {
     (async () => {
@@ -127,6 +138,16 @@ export default function HomeScreen() {
     })();
   }, []);
 
+  useEffect(() => {
+    Animated.spring(buttonsAnim, {
+      toValue: 1,
+      useNativeDriver: true,
+      friction: 7,
+      tension: 60,
+    }).start();
+  }, []);
+
+  // All hooks are now at the very top. Now do the loading check.
   if (locationLoading) {
     return <ActivityIndicator size="large" style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }} />;
   }
@@ -239,76 +260,57 @@ export default function HomeScreen() {
     return hash;
   }
 
-  return (
-    <View style={{ flex: 1 }}>
-      {/* Google Places Search Bar */}
-      <SearchBar onLocationSelect={handleLocationSelect} onSearchResults={handleSearchResults} />
-      {/* Search Results Dropdown */}
-      {showResults && searchResults.length > 0 && (
-        <View style={{ position: 'absolute', top: 110, left: 20, right: 20, zIndex: 1100, backgroundColor: 'white', borderRadius: 12, maxHeight: 400, shadowColor: '#000', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.1, shadowRadius: 8, elevation: 4 }}>
-          {favorites.length > 0 && <Text style={{ fontWeight: 'bold', fontSize: 16, margin: 12 }}>⭐ Favorites</Text>}
-          {favorites.map(fav => (
-            <TouchableOpacity
-              key={`fav-${fav.id}`}
-              style={{ paddingHorizontal: 16, paddingVertical: 12, borderBottomWidth: 1, borderBottomColor: '#E5E7EB' }}
-              onPress={() => handleLocationSelect(
-                { description: fav.title },
-                { place_id: fav.id, name: fav.title, formatted_address: fav.description, geometry: { location: fav.coordinate } }
-              )}
-            >
-              <Text style={{ fontSize: 16, fontWeight: '500', color: '#1F2937', marginBottom: 2 }}>{fav.title}</Text>
-              <Text style={{ fontSize: 14, color: '#6B7280' }}>{fav.description}</Text>
-            </TouchableOpacity>
-          ))}
-          {recents.length > 0 && <Text style={{ fontWeight: 'bold', fontSize: 16, margin: 12 }}>🕑 Recent</Text>}
-          {recents.map(rec => (
-            <TouchableOpacity
-              key={`rec-${rec.id}`}
-              style={{ paddingHorizontal: 16, paddingVertical: 12, borderBottomWidth: 1, borderBottomColor: '#E5E7EB' }}
-              onPress={() => handleLocationSelect(
-                { description: rec.title },
-                { place_id: rec.id, name: rec.title, formatted_address: rec.description, geometry: { location: rec.coordinate } }
-              )}
-            >
-              <Text style={{ fontSize: 16, fontWeight: '500', color: '#1F2937', marginBottom: 2 }}>{rec.title}</Text>
-              <Text style={{ fontSize: 14, color: '#6B7280' }}>{rec.description}</Text>
-            </TouchableOpacity>
-          ))}
-          {searchResults.map(result => (
-            <TouchableOpacity
-              key={result.id}
-              style={{ paddingHorizontal: 16, paddingVertical: 12, borderBottomWidth: 1, borderBottomColor: '#E5E7EB' }}
-              onPress={async () => {
-                // Fetch details for the selected place
-                try {
-                  const detailsResponse = await axios.get(
-                    `https://maps.googleapis.com/maps/api/place/details/json?place_id=${result.placeId}&fields=name,formatted_address,geometry&key=${GOOGLE_PLACES_API_KEY}`
-                  );
-                  const details = detailsResponse.data.result;
-                  handleLocationSelect(
-                    { description: result.title },
-                    {
-                      place_id: result.placeId,
-                      name: result.title,
-                      formatted_address: result.description,
-                      geometry: details.geometry,
-                    }
-                  );
-                  setShowResults(false);
-                  setSearchText('');
-                } catch (error) {
-                  console.error('Failed to fetch place details:', error);
-                }
-              }}
-            >
-              <Text style={{ fontSize: 16, fontWeight: '500', color: '#1F2937', marginBottom: 2 }}>{result.title}</Text>
-              <Text style={{ fontSize: 14, color: '#6B7280' }}>{result.description}</Text>
-            </TouchableOpacity>
-          ))}
-        </View>
-      )}
+  // Helper to flatten glassmorphism into style objects
+  const glassyStyle = {
+    backgroundColor: colors.glass,
+    borderRadius: 24,
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.25)',
+    // overflow and backdropFilter are not supported in React Native
+  };
+  const shadowStyle = {
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.15,
+    shadowRadius: 24,
+    elevation: 8,
+  };
 
-      {/* MapView with Google provider and overlays */}
+
+
+  return (
+    <View style={{ flex: 1, backgroundColor: colors.background }}>
+      {/* Blurred/gradient overlay for depth */}
+      <View style={{
+        ...StyleSheet.absoluteFillObject,
+        zIndex: 1,
+        backgroundColor: 'rgba(24,26,32,0.18)',
+      }} />
+      {/* Cruise logo watermark (top left) */}
+      <View style={{ position: 'absolute', top: 32, left: 24, zIndex: 100, opacity: 0.18 }}>
+        <Svg width={48} height={48} viewBox="0 0 200 200">
+          <Defs>
+            <LinearGradient id="pinGradient" x1="100" y1="30" x2="100" y2="170" gradientUnits="userSpaceOnUse">
+              <Stop offset="0%" stopColor="#4B9EDB" />
+              <Stop offset="50%" stopColor="#3B3B98" />
+              <Stop offset="100%" stopColor="#1DE9B6" />
+            </LinearGradient>
+            <RadialGradient id="glow" cx="50%" cy="50%" r="50%">
+              <Stop offset="0%" stopColor="#F7B731" stopOpacity="1" />
+              <Stop offset="100%" stopColor="#F7B731" stopOpacity="0" />
+            </RadialGradient>
+            <LinearGradient id="wave" x1="80" y1="110" x2="120" y2="140" gradientUnits="userSpaceOnUse">
+              <Stop offset="0%" stopColor="#fff" stopOpacity="0.7" />
+              <Stop offset="100%" stopColor="#fff" stopOpacity="0" />
+            </LinearGradient>
+          </Defs>
+          <Ellipse cx="100" cy="185" rx="20" ry="8" fill="#000" fillOpacity="0.15" />
+          <Path d="M100 35c-28 0-51 21-51 50 0 34 38 74 49 85a5 5 0 0 0 6 0c11-11 49-51 49-85 0-29-23-50-51-50z" fill="url(#pinGradient)" />
+          <Path d="M80 120 Q100 140 120 120" stroke="url(#wave)" strokeWidth={6} fill="none" strokeLinecap="round" />
+          <Circle cx="100" cy="90" r="18" fill="#F7B731" />
+          <Circle cx="100" cy="90" r="28" fill="url(#glow)" />
+        </Svg>
+      </View>
       <MapView
         ref={mapRef}
         style={{ flex: 1 }}
@@ -317,38 +319,10 @@ export default function HomeScreen() {
         region={initialRegion || region}
         showsUserLocation
         showsMyLocationButton={false}
-        showsCompass
-        showsScale
-        showsTraffic={trafficEnabled}
-        showsIndoors
-        showsBuildings
-        showsPointsOfInterest
-        onPoiClick={e => {
-          const native = e.nativeEvent;
-          const poi: POI = {
-            id: native.placeId ? hashCode(native.placeId) : 0,
-            title: native.name || 'POI',
-            description: '',
-            coordinate: native.coordinate,
-          };
-          handlePOIPress(poi);
-        }}
-        onMapReady={() => console.log('Map is ready')}
+        customMapStyle={CRUISE_MAP_STYLE}
       >
-        {/* User location marker */}
-        {initialRegion && (
-          <Marker
-            coordinate={{
-              latitude: initialRegion.latitude,
-              longitude: initialRegion.longitude,
-            }}
-            title="You are here"
-            description="Current Location"
-            pinColor="blue"
-          />
-        )}
-        {/* POI Markers */}
-        {POIS.map(poi => (
+        {/* Markers for POIs */}
+        {POIS.map((poi) => (
           <Marker
             key={poi.id}
             coordinate={poi.coordinate}
@@ -357,16 +331,193 @@ export default function HomeScreen() {
             onPress={() => handlePOIPress(poi)}
           />
         ))}
-        {searchResults.map(result => (
-          <Marker
-            key={result.id}
-            coordinate={result.coordinate}
-            title={result.title}
-            description={result.description}
-            onPress={() => handlePOIPress({ id: hashCode(result.placeId || `${result.coordinate.latitude},${result.coordinate.longitude}`), title: result.title, description: result.description, coordinate: result.coordinate })}
-          />
-        ))}
       </MapView>
+
+      {/* Glassy floating search bar */}
+      <View style={[
+        {
+          position: 'absolute',
+          top: 54,
+          left: 24,
+          right: 24,
+          zIndex: 10,
+          flexDirection: 'column',
+          alignItems: 'center',
+        },
+        glassyStyle,
+        shadowStyle,
+      ]}>
+        <SearchBar
+          onLocationSelect={handleLocationSelect}
+          onVoiceSearch={() => {}}
+          onSearchResults={handleSearchResults}
+          searchText={searchText}
+          onSearchTextChange={setSearchText}
+        />
+        {/* Welcome message/tagline */}
+        <Text style={{
+          color: colors.textSecondary,
+          fontSize: 16,
+          fontWeight: '500',
+          marginTop: 6,
+          marginBottom: 2,
+          letterSpacing: 1,
+          textAlign: 'center',
+          textShadowColor: colors.background,
+          textShadowOffset: { width: 0, height: 1 },
+          textShadowRadius: 4,
+        }}>
+          Cruise: Your Conversational Copilot
+        </Text>
+      </View>
+
+      {/* Search Results Dropdown */}
+      {showResults && searchResults.length > 0 && (
+        <View style={[
+          {
+            position: 'absolute',
+            top: 180,
+            left: 24,
+            right: 24,
+            zIndex: 15,
+            maxHeight: 300,
+          },
+          glassyStyle,
+          shadowStyle,
+        ]}>
+          <FlatList
+            data={searchResults}
+            keyExtractor={(item: SearchResult) => item.id}
+            renderItem={({ item }: { item: SearchResult }) => (
+              <TouchableOpacity
+                style={{
+                  paddingHorizontal: 16,
+                  paddingVertical: 12,
+                  borderBottomWidth: 1,
+                  borderBottomColor: 'rgba(255,255,255,0.1)',
+                }}
+                onPress={() => {
+                  // Create a POI from search result
+                  const poi = {
+                    id: hashCode(item.placeId || item.id),
+                    title: item.title,
+                    description: item.description,
+                    coordinate: item.coordinate,
+                  };
+                  setSelectedPOI(poi);
+                  setNavigationDestination(poi);
+                  setShowResults(false);
+                  setSearchText('');
+                  
+                  // Animate map to the selected location
+                  mapRef.current?.animateToRegion({
+                    latitude: item.coordinate.latitude,
+                    longitude: item.coordinate.longitude,
+                    latitudeDelta: 0.01,
+                    longitudeDelta: 0.01,
+                  });
+                }}
+              >
+                <Text style={{
+                  fontSize: 16,
+                  fontWeight: '500',
+                  color: colors.text,
+                  marginBottom: 2,
+                }}>
+                  {item.title}
+                </Text>
+                <Text style={{
+                  fontSize: 14,
+                  color: colors.textSecondary,
+                }}>
+                  {item.description}
+                </Text>
+              </TouchableOpacity>
+            )}
+            style={{
+              borderRadius: 16,
+              backgroundColor: 'transparent',
+            }}
+          />
+        </View>
+      )}
+
+      {/* Animated quick-access floating buttons (right side) */}
+      <Animated.View style={{
+        position: 'absolute',
+        right: 20,
+        top: 140,
+        zIndex: 20,
+        flexDirection: 'column',
+        alignItems: 'center',
+        gap: 18,
+        opacity: buttonsAnim,
+        transform: [{ scale: buttonsAnim }],
+      }}>
+        {/* Layers button */}
+        <TouchableOpacity style={[
+          {
+            width: 56,
+            height: 56,
+            justifyContent: 'center',
+            alignItems: 'center',
+            marginBottom: 8,
+          },
+          glassyStyle,
+          shadowStyle,
+        ]} onPress={() => setShowLayerModal(true)}>
+          <Ionicons name="layers" size={28} color={colors.primary} />
+        </TouchableOpacity>
+        {/* Recenter button */}
+        <TouchableOpacity style={[
+          {
+            width: 56,
+            height: 56,
+            justifyContent: 'center',
+            alignItems: 'center',
+            marginBottom: 8,
+          },
+          glassyStyle,
+          shadowStyle,
+        ]} onPress={() => {
+          if (initialRegion) mapRef.current?.animateToRegion(initialRegion);
+        }}>
+          <Ionicons name="locate" size={28} color={colors.primary} />
+        </TouchableOpacity>
+        {/* Report button */}
+        <TouchableOpacity style={[
+          {
+            width: 56,
+            height: 56,
+            justifyContent: 'center',
+            alignItems: 'center',
+            marginBottom: 8,
+          },
+          glassyStyle,
+          shadowStyle,
+        ]} onPress={() => {}}>
+          <MaterialIcons name="report-problem" size={28} color={colors.warning} />
+        </TouchableOpacity>
+        {/* Voice assistant button */}
+        <TouchableOpacity style={[
+          {
+            width: 56,
+            height: 56,
+            justifyContent: 'center',
+            alignItems: 'center',
+          },
+          glassyStyle,
+          shadowStyle,
+        ]} onPress={() => {}}>
+          <Ionicons name="mic" size={28} color={colors.accent} />
+        </TouchableOpacity>
+      </Animated.View>
+
+      {/* Placeholder for animated POI card (bottom) */}
+      {/* To be implemented in next step */}
+
+      {/* Branding: Cruise logo watermark (optional) */}
+      {/* <SvgUri source={require('../../assets/locator-pin.svg')} width={48} height={48} style={{ position: 'absolute', left: 24, bottom: 24, opacity: 0.12 }} /> */}
 
       {/* Floating Action Buttons */}
       <View style={styles.fabContainer}>
@@ -426,9 +577,26 @@ export default function HomeScreen() {
 
       {/* Start Navigation Button */}
       {navigationDestination && (
-        <View style={{ position: 'absolute', bottom: 120, left: 0, right: 0, alignItems: 'center', zIndex: 200 }}>
+        <View style={{ 
+          position: 'absolute', 
+          bottom: 120, 
+          left: 0, 
+          right: 0, 
+          alignItems: 'center', 
+          zIndex: 200 
+        }}>
           <TouchableOpacity
-            style={{ backgroundColor: '#2563EB', borderRadius: 24, paddingVertical: 16, paddingHorizontal: 32, elevation: 4 }}
+            style={{ 
+              backgroundColor: colors.primary, 
+              borderRadius: 24, 
+              paddingVertical: 16, 
+              paddingHorizontal: 32, 
+              elevation: 8,
+              shadowColor: colors.primary,
+              shadowOffset: { width: 0, height: 4 },
+              shadowOpacity: 0.3,
+              shadowRadius: 8,
+            }}
             onPress={() => {
               navigation.navigate('Navigation', {
                 destination: {
@@ -443,9 +611,34 @@ export default function HomeScreen() {
               });
             }}
           >
-            <Text style={{ color: '#fff', fontWeight: 'bold', fontSize: 18 }}>Start Navigation</Text>
+            <Text style={{ 
+              color: '#fff', 
+              fontWeight: 'bold', 
+              fontSize: 18,
+              textAlign: 'center',
+            }}>
+              🚗 Start Navigation to {navigationDestination.title}
+            </Text>
           </TouchableOpacity>
         </View>
+      )}
+
+      {/* Tap to dismiss search results overlay */}
+      {showResults && (
+        <TouchableOpacity
+          style={{
+            position: 'absolute',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            zIndex: 14,
+          }}
+          onPress={() => {
+            setShowResults(false);
+            setSearchText('');
+          }}
+        />
       )}
     </View>
   );

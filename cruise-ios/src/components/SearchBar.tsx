@@ -1,11 +1,15 @@
 import React, { useState } from 'react';
 import { View, StyleSheet, Text, TouchableOpacity, TextInput, FlatList } from 'react-native';
 import axios from 'axios';
+import { colors } from '../theme';
+import { Ionicons } from '@expo/vector-icons';
 
 interface SearchBarProps {
   onLocationSelect: (data: any, details: any) => void;
   onVoiceSearch?: () => void;
   onSearchResults?: (results: string) => void;
+  searchText?: string;
+  onSearchTextChange?: (text: string) => void;
 }
 
 interface SearchResult {
@@ -20,32 +24,45 @@ interface SearchResult {
   };
 }
 
-export default function SearchBar({ onLocationSelect, onVoiceSearch, onSearchResults }: SearchBarProps) {
+export default function SearchBar({ onLocationSelect, onVoiceSearch, onSearchResults, searchText, onSearchTextChange }: SearchBarProps) {
   const [isFocused, setIsFocused] = useState(false);
-  const [searchText, setSearchText] = useState('');
+  const [localSearchText, setLocalSearchText] = useState(searchText || '');
   const [showResults, setShowResults] = useState(false);
 
   const handleSearch = (text: string) => {
-    setSearchText(text);
+    setLocalSearchText(text);
+    onSearchTextChange?.(text);
     onSearchResults?.(text);
     setShowResults(text.length >= 3);
   };
 
+  const handleClear = () => {
+    setLocalSearchText('');
+    onSearchTextChange?.('');
+    setShowResults(false);
+    onSearchResults?.('');
+  };
+
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, { shadowColor: colors.primary, shadowOpacity: 0.12, shadowRadius: 8, elevation: 4 }]}>
       <View style={[styles.searchContainer, isFocused && styles.searchContainerFocused]}>
         <TextInput
           style={styles.textInput}
           placeholder="Search for a place..."
-          placeholderTextColor="#9CA3AF"
-          value={searchText}
+          placeholderTextColor={colors.textSecondary}
+          value={localSearchText}
           onChangeText={handleSearch}
           onFocus={() => setIsFocused(true)}
           onBlur={() => setIsFocused(false)}
         />
+        {localSearchText.length > 0 && (
+          <TouchableOpacity style={styles.clearButton} onPress={handleClear}>
+            <Ionicons name="close-circle" size={22} color={colors.textSecondary} />
+          </TouchableOpacity>
+        )}
         {onVoiceSearch && (
           <TouchableOpacity style={styles.voiceButton} onPress={onVoiceSearch}>
-            <Text style={styles.voiceButtonText}>🎤</Text>
+            <Ionicons name="mic" size={20} color={colors.accent} />
           </TouchableOpacity>
         )}
       </View>
@@ -56,26 +73,20 @@ export default function SearchBar({ onLocationSelect, onVoiceSearch, onSearchRes
 
 const styles = StyleSheet.create({
   container: {
-    position: 'absolute',
-    top: 60,
-    left: 20,
-    right: 20,
+    width: '100%',
     zIndex: 1000,
   },
   searchContainer: {
-    backgroundColor: 'rgba(255, 255, 255, 0.95)',
+    backgroundColor: colors.glass,
     borderRadius: 16,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 8,
-    elevation: 4,
     flexDirection: 'row',
     alignItems: 'center',
+    paddingHorizontal: 8,
+    paddingVertical: 2,
   },
   searchContainerFocused: {
-    backgroundColor: 'rgba(255, 255, 255, 0.98)',
-    shadowOpacity: 0.15,
+    backgroundColor: colors.card,
+    shadowOpacity: 0.18,
     shadowRadius: 12,
   },
   autocompleteContainer: {
@@ -83,12 +94,13 @@ const styles = StyleSheet.create({
     backgroundColor: 'transparent',
   },
   textInput: {
-    height: 50,
+    flex: 1,
+    height: 44,
     fontSize: 16,
-    color: '#1F2937',
+    color: colors.text,
     backgroundColor: 'transparent',
-    paddingHorizontal: 16,
-    paddingVertical: 12,
+    paddingHorizontal: 12,
+    paddingVertical: 8,
   },
   listView: {
     backgroundColor: 'rgba(255, 255, 255, 0.98)',
@@ -107,19 +119,19 @@ const styles = StyleSheet.create({
   },
   description: {
     fontSize: 14,
-    color: '#374151',
+    color: colors.textSecondary,
   },
   separator: {
     height: 1,
-    backgroundColor: '#E5E7EB',
+    backgroundColor: colors.border,
     marginHorizontal: 16,
   },
   voiceButton: {
-    width: 44,
+    width: 36,
     height: 44,
     justifyContent: 'center',
     alignItems: 'center',
-    marginRight: 8,
+    marginLeft: 2,
   },
   voiceButtonText: {
     fontSize: 20,
@@ -142,16 +154,22 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingVertical: 12,
     borderBottomWidth: 1,
-    borderBottomColor: '#E5E7EB',
+    borderBottomColor: colors.border,
   },
   resultTitle: {
     fontSize: 16,
     fontWeight: '500',
-    color: '#1F2937',
+    color: colors.text,
     marginBottom: 2,
   },
   resultAddress: {
     fontSize: 14,
-    color: '#6B7280',
+    color: colors.textSecondary,
+  },
+  clearButton: {
+    width: 32,
+    height: 44,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
 }); 

@@ -1,0 +1,26 @@
+<svg width="200" height="200" viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="pinGradient" x1="100" y1="30" x2="100" y2="170" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#4B9EDB"/>
+      <stop offset="50%" stop-color="#3B3B98"/>
+      <stop offset="100%" stop-color="#1DE9B6"/>
+    </linearGradient>
+    <radialGradient id="glow" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#F7B731" stop-opacity="1"/>
+      <stop offset="100%" stop-color="#F7B731" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="wave" x1="80" y1="110" x2="120" y2="140" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#fff" stop-opacity="0.7"/>
+      <stop offset="100%" stop-color="#fff" stop-opacity="0"/>
+    </linearGradient>
+  </defs>
+  <!-- Drop shadow -->
+  <ellipse cx="100" cy="185" rx="20" ry="8" fill="#000" fill-opacity="0.15"/>
+  <!-- Geometric, balanced pin -->
+  <path d="M100 35c-28 0-51 21-51 50 0 34 38 74 49 85a5 5 0 0 0 6 0c11-11 49-51 49-85 0-29-23-50-51-50z" fill="url(#pinGradient)"/>
+  <!-- Dynamic conversational wave inside pin -->
+  <path d="M80 120 Q100 140 120 120" stroke="url(#wave)" stroke-width="6" fill="none" stroke-linecap="round"/>
+  <!-- Glowing yellow center -->
+  <circle cx="100" cy="90" r="18" fill="#F7B731"/>
+  <circle cx="100" cy="90" r="28" fill="url(#glow)"/>
+</svg> 
