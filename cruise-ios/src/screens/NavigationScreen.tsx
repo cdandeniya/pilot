@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, StyleSheet } from 'react-native';
 import TurnByTurnNavigation from '../components/TurnByTurnNavigation';
+import VoiceAssistant from '../services/VoiceAssistant';
 
 interface NavigationScreenProps {
   route?: {
@@ -20,7 +21,6 @@ interface NavigationScreenProps {
 }
 
 export default function NavigationScreen({ route, navigation }: NavigationScreenProps) {
-  // Get destination and origin from route params or use defaults
   const destination = route?.params?.destination || {
     latitude: 37.7749,
     longitude: -122.4194,
@@ -29,11 +29,24 @@ export default function NavigationScreen({ route, navigation }: NavigationScreen
   const origin = route?.params?.origin;
 
   const handleCloseNavigation = () => {
-    // Navigate back to the previous screen
     if (navigation) {
       navigation.goBack();
     }
   };
+
+  // Set up voice assistant for driving mode
+  useEffect(() => {
+    // Enable driving mode in voice assistant
+    VoiceAssistant.setDrivingState(true);
+    
+    // Announce that navigation is ready
+    VoiceAssistant.speak(`Navigation ready. You can now use voice commands while driving. Say "Hey Cruise" followed by your request.`);
+    
+    return () => {
+      // Disable driving mode when leaving navigation
+      VoiceAssistant.setDrivingState(false);
+    };
+  }, []);
 
   return (
     <View style={styles.container}>

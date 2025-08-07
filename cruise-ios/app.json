@@ -19,6 +19,12 @@
         {
           "locationAlwaysAndWhenInUsePermission": "Allow $(PRODUCT_NAME) to use your location."
         }
+      ],
+      [
+        "@react-native-voice/voice",
+        {
+          "microphonePermission": "Allow $(PRODUCT_NAME) to access your microphone for voice commands."
+        }
       ]
     ],
     "extra": {
@@ -33,7 +39,9 @@
       },
       "infoPlist": {
         "NSLocationWhenInUseUsageDescription": "This app uses location to show your position on the map.",
-        "NSLocationAlwaysAndWhenInUseUsageDescription": "This app uses location to show your position on the map."
+        "NSLocationAlwaysAndWhenInUseUsageDescription": "This app uses location to show your position on the map.",
+        "NSMicrophoneUsageDescription": "This app uses the microphone for voice commands and navigation.",
+        "NSSpeechRecognitionUsageDescription": "This app uses speech recognition to understand your voice commands."
       }
     },
     "android": {
@@ -50,7 +58,9 @@
       },
       "permissions": [
         "ACCESS_COARSE_LOCATION",
-        "ACCESS_FINE_LOCATION"
+        "ACCESS_FINE_LOCATION",
+        "RECORD_AUDIO",
+        "INTERNET"
       ]
     },
     "web": {
